@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  oracle-db:
+    image: oracle/database:${VERSION}-xe
+    container_name: oracle-cloud
+    environment:
+      - ORACLE_SID=XE
+      - ORACLE_PWD=${ORACLE_PWD}
+      - ORACLE_CHARACTERSET=AL32UTF8
+    ports:
+      - "1521:1521"
+      - "8080:8080"
+    volumes:
+      - mydata:/opt/oracle/oradata
+    shm_size: 1g
+
+volumes:
+  mydata:
+ 
+    

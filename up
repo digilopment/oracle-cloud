@@ -1,0 +1,5 @@
+#!/bin/sh
+. ./.env
+
+sudo docker rm -f $(sudo docker ps -a -q --filter="ancestor=oracle/database:${VERSION}-xe")
+sudo docker-compose up
