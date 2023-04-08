@@ -30,5 +30,4 @@ rm -rf temp
 
 #run docker
 echo "${SUDO_PASSWORD}" | sudo docker rm -f $(sudo docker ps -a -q --filter="ancestor=oracle/database:${VERSION}-xe")
-echo "${SUDO_PASSWORD}" | echo "${SUDO_PASSWORD}" | docker-compose up
-#echo "${SUDO_PASSWORD}" | sudo -S docker run --name oracle-cloud -e ENABLE_TCPS=${ENABLE_TCPS} -v mydata:/opt/oracle/oradata oracle/database:${VERSION}-xe
+echo "${SUDO_PASSWORD}" | sudo docker-compose up
