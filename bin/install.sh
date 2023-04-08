@@ -5,8 +5,8 @@ cd ../
 . ./.env
 
 #check versions
-echo "${SUDO_PASSWORD}" | docker-compose -v
-echo "${SUDO_PASSWORD}" | docker -v
+echo "${SUDO_PASSWORD}" | sudo -S docker-compose -v
+echo "${SUDO_PASSWORD}" | sudo -S docker -v
 
 #set folders
 rm -rf temp
@@ -29,5 +29,5 @@ cd ../
 rm -rf temp
 
 #run docker
-echo "${SUDO_PASSWORD}" | sudo docker rm -f $(sudo docker ps -a -q --filter="ancestor=oracle/database:${VERSION}-xe")
-echo "${SUDO_PASSWORD}" | sudo docker-compose up
+echo "${SUDO_PASSWORD}" | sudo -S docker rm -f $(echo "${SUDO_PASSWORD}" | sudo -S docker ps -a -q --filter="ancestor=oracle/database:${VERSION}-xe")
+echo "${SUDO_PASSWORD}" | sudo -S docker-compose up
