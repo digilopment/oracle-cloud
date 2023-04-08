@@ -14,5 +14,7 @@ sudo docker system prune
 
 sudo rm -rf temp
 sudo rm -rf images
+sudo rm -rf images/oracle
 sudo rm -rf volumes
 sudo rm -rf sqldeveloper
+sudo rm -rf ~/.sqldeveloper

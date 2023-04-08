@@ -7,28 +7,61 @@ CREATE TABLE osadnici (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (1, 'Tomas', 10, 0, SYSDATE-1);
-INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (2, 'Lubo', 5, 0, SYSDATE-2);
-INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (3, 'Andy', 8, 0, SYSDATE-3);
-INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (4, 'Smyky', 7, 0, SYSDATE-4);
-INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (5, 'Vilo', 4, 0, SYSDATE-5);
+INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (1, 'Tomas', 0, 0, SYSDATE-1);
+INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (2, 'Lubo', 0, 0, SYSDATE-2);
+INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (3, 'Andy', 0, 0, SYSDATE-3);
+INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (4, 'Smyky', 0, 0, SYSDATE-4);
+INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (5, 'Vilo', 0, 0, SYSDATE-5);
 
--- vytvorenie procedúry "hod_kockou"
-CREATE OR REPLACE PROCEDURE hod_kockou AS
-    kocka NUMBER;
-    osadnik NUMBER;
+create or replace NONEDITIONABLE PROCEDURE kocka_procedura IS
+  kocka NUMBER(2);
+  osadnik NUMBER(5);
 BEGIN
-    -- vygenerovanie náhodného čísla od 2 do 12 a uloženie do premennej "kocka"
-    kocka := FLOOR(DBMS_RANDOM.VALUE(2, 13));
-    -- vygenerovanie náhodného ID od 1 do 5 a uloženie do premennej "osadnik"
-    osadnik := FLOOR(DBMS_RANDOM.VALUE(1, 6));
-    -- ak je hodnota "kocka" rovná 7, vygeneruje sa chyba
-    IF kocka = 7 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Nemozno upravit cislo 7!');
+  -- Overenie počtu spustení
+  DECLARE
+    pocet_spusteni NUMBER(2);
+  BEGIN
+    SELECT COUNT(*) INTO pocet_spusteni FROM user_scheduler_jobs WHERE job_name = 'HOD_KOCKOU_JOB';
+    IF pocet_spusteni >= 15 THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Procedúra môže byť spustená maximálne 15-krát.');
     END IF;
-    -- inak sa aktualizuje stĺpec "last_number" tabuľky "osadnici" pre dané ID "osadnik"
+  END;
+
+  -- Generovanie náhodných čísel
+  kocka := TRUNC(DBMS_RANDOM.VALUE(2, 13));
+  osadnik := TRUNC(DBMS_RANDOM.VALUE(1, 6));
+
+  -- Overenie hodnoty kocky a aktivácia before triggeru
+  IF kocka = 7 THEN
     UPDATE osadnici SET last_number = kocka WHERE id = osadnik;
-    UPDATE osadnici SET points = points + kocka WHERE id = osadnik;
-    -- vypíše sa správa o úspešnom updatovaní
-    DBMS_OUTPUT.PUT_LINE('Hodnota ' || kocka || ' bola priradena k osadnikovi s ID ' || osadnik);
+    UPDATE osadnici SET points = points - kocka WHERE id = osadnik;
+  ELSE
+    UPDATE osadnici SET points = points + kocka, last_number = kocka WHERE id = osadnik;
+  END IF;
+END;
+
+create or replace NONEDITIONABLE PROCEDURE OSADNICI_RESET_GAME AS 
+BEGIN
+  UPDATE osadnici SET last_number = 0;
+  UPDATE osadnici SET points = 0;
+END OSADNICI_RESET_GAME;
+
+create or replace NONEDITIONABLE TRIGGER before_update_osadnici
+BEFORE UPDATE ON osadnici
+FOR EACH ROW
+BEGIN
+  IF :NEW.points > 30 THEN
+    RAISE_APPLICATION_ERROR(-20003, 'Bol prekroceny maximalny pocet bodov.');
+  END IF;
+END;
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+    job_name        => 'osadnici_autoplay',
+    job_type        => 'PLSQL_BLOCK',
+    job_action      => 'BEGIN kocka_procedura(); END;',
+    start_date      => SYSTIMESTAMP,
+    repeat_interval => 'FREQ=SECONDLY;INTERVAL=5',
+    enabled         => TRUE
+  );
 END;
