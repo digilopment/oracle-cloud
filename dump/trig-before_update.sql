@@ -1,4 +1,4 @@
-create or replace NONEDITIONABLE TRIGGER before_update_osadnici
+CREATE OR REPLACE TRIGGER before_update_osadnici
 BEFORE UPDATE ON osadnici
 FOR EACH ROW
 BEGIN

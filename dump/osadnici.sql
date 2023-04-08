@@ -13,7 +13,7 @@ INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (3, 'And
 INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (4, 'Smyky', 0, 0, SYSDATE-4);
 INSERT INTO osadnici (id, name, points, last_number, created_at) VALUES (5, 'Vilo', 0, 0, SYSDATE-5);
 
-create or replace NONEDITIONABLE PROCEDURE kocka_procedura IS
+CREATE or replace NONEDITIONABLE PROCEDURE kocka_procedura IS
   kocka NUMBER(2);
   osadnik NUMBER(5);
 BEGIN
@@ -38,15 +38,16 @@ BEGIN
   ELSE
     UPDATE osadnici SET points = points + kocka, last_number = kocka WHERE id = osadnik;
   END IF;
-END;
+END kocka_procedura;
 
-create or replace NONEDITIONABLE PROCEDURE OSADNICI_RESET_GAME AS 
+CREATE or replace NONEDITIONABLE PROCEDURE osadnici_reset IS 
 BEGIN
-  UPDATE osadnici SET last_number = 0;
-  UPDATE osadnici SET points = 0;
-END OSADNICI_RESET_GAME;
+   UPDATE osadnici SET last_number = 0;
+   UPDATE osadnici SET points = 0;
+END osadnici_reset;
 
-create or replace NONEDITIONABLE TRIGGER before_update_osadnici
+
+CREATE or replace NONEDITIONABLE TRIGGER before_update_osadnici
 BEFORE UPDATE ON osadnici
 FOR EACH ROW
 BEGIN
