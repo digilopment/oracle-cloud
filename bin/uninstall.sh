@@ -7,10 +7,12 @@ cd ../
 sudo docker stop $(sudo docker ps -q)
 sudo docker rmi -f $(sudo docker images | grep oracle-cloud | awk '{print $3}')
 sudo docker rm -f $(sudo docker ps -a -q --filter="ancestor=oracle/database:$VERSION-xe")
-sudo docker rmi oracle/database:21.3.0-xe
+sudo docker rmi oracle/database:${VERSION}-xe
 
 sudo docker rm oracle-cloud
 sudo docker system prune
+sudo docker volume rm mydata
+sudo docker volume prune
 
 sudo rm -rf temp
 sudo rm -rf images
