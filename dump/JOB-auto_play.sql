@@ -4,7 +4,7 @@ BEGIN
     job_type        => 'PLSQL_BLOCK',
     job_action      => 'BEGIN kocka_procedura(); END;',
     start_date      => SYSTIMESTAMP,
-    repeat_interval => 'FREQ=SECONDLY;INTERVAL=5',
+    repeat_interval => 'FREQ=SECONDLY;INTERVAL=2',
     enabled         => TRUE
   );
 END;
